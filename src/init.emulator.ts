@@ -1,4 +1,5 @@
 import {test} from '@playwright/test';
+import type {CliContextPageParams} from './page-objects/_cli-context.page';
 import {CliPage} from './page-objects/cli.page';
 import {ConsolePage} from './page-objects/console.page';
 
@@ -8,9 +9,11 @@ interface EmulatorSuitePages {
 }
 
 export const initEmulatorSuite = ({
-  satelliteKind
+  satelliteKind,
+  cli
 }: {
   satelliteKind: 'website' | 'application';
+  cli?: CliContextPageParams;
 }): (() => EmulatorSuitePages) => {
   let consolePage: ConsolePage;
   let cliPage: CliPage;
@@ -33,7 +36,7 @@ export const initEmulatorSuite = ({
 
     const satelliteId = await consolePage.copySatelliteID();
 
-    cliPage = await CliPage.initWithEmulatorLogin({satelliteId});
+    cliPage = await CliPage.initWithEmulatorLogin({satelliteId, ...cli});
   });
 
   test.afterAll(async () => {
