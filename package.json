@@ -1,0 +1,61 @@
+{
+  "name": "@junobuild/emulator-playwright",
+  "version": "0.0.1",
+  "description": "A Playwright library to simplify the integration of the Juno Console and CLI in E2E tests.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/junobuild/emulator-playwright.git"
+  },
+  "bugs": {
+    "url": "https://github.com/junobuild/emulator-playwright"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "playwright",
+    "e2e",
+    "test"
+  ],
+  "homepage": "https://github.com/junobuild/emulator-playwright#readme",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "format": "prettier . --write",
+    "format:check": "prettier --check .",
+    "ts-declaration": "tsc --emitDeclarationOnly --outDir dist/types",
+    "build": "tsc --noEmit && node rmdir.mjs && node esbuild.mjs && npm run ts-declaration",
+    "lint": "eslint --max-warnings 0"
+  },
+  "devDependencies": {
+    "@dfinity/eslint-config-oisy-wallet": "^0.2.3",
+    "@types/node": "^25.3.0",
+    "esbuild": "^0.27.3",
+    "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11.5.1 <12.0.0"
+  },
+  "peerDependencies": {
+    "@dfinity/utils": "^4.1.0",
+    "@dfinity/zod-schemas": "^3.0.2",
+    "@junobuild/cli-tools": "^0.10.2",
+    "@junobuild/config-loader": "^0.4.8",
+    "@playwright/test": "^1.52.0"
+  }
+}
