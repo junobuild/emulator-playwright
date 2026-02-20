@@ -4,7 +4,6 @@ import {execute, spawn} from '@junobuild/cli-tools';
 import {statSync} from 'node:fs';
 import {readdir, readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-import {TestPage} from './_page';
 
 const DEV = (process.env.NODE_ENV ?? 'production') === 'development';
 
@@ -22,12 +21,10 @@ export interface CliPageParams {
   satelliteId: PrincipalText;
 }
 
-export class CliPage extends TestPage {
+export class CliPage {
   #satelliteId: PrincipalText;
 
   private constructor({satelliteId}: CliPageParams) {
-    super();
-
     this.#satelliteId = satelliteId;
   }
 
@@ -214,11 +211,11 @@ export class CliPage extends TestPage {
     return {accessKey: accessKey.trim()};
   }
 
-  /**
-   * @override
-   */
-  async close(): Promise<void> {
-    await this.revertConfig();
+  async close({revertConfig}: {revertConfig: boolean} = {revertConfig: true}): Promise<void> {
+    if (revertConfig) {
+      await this.revertConfig();
+    }
+
     await this.logout();
   }
 }
