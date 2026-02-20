@@ -211,11 +211,15 @@ export class CliPage {
     return {accessKey: accessKey.trim()};
   }
 
-  async close({revertConfig}: {revertConfig: boolean} = {revertConfig: true}): Promise<void> {
-    if (revertConfig) {
-      await this.revertConfig();
+  async close({cleanUp}: {cleanUp: boolean} = {cleanUp: true}): Promise<void> {
+    if (cleanUp) {
+      await this.cleanUp();
     }
 
     await this.logout();
+  }
+
+  async cleanUp(): Promise<void> {
+    await this.revertConfig();
   }
 }
