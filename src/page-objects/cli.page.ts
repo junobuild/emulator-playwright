@@ -4,27 +4,20 @@ import {execute, spawn} from '@junobuild/cli-tools';
 import {statSync} from 'node:fs';
 import {readdir, readFile, writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-
-const DEV = (process.env.NODE_ENV ?? 'production') === 'development';
+import { type CliContextPageParams,CliContextPage} from './_cli-context.page';
 
 const JUNO_CONFIG = join(process.cwd(), 'juno.config.ts');
 
-const JUNO_TEST_ARGS = ['--mode', 'development', '--headless'];
-
-const {command: JUNO_CMD, args: JUNO_CDM_ARGS} = DEV
-  ? {command: 'node', args: ['dist/index.js']}
-  : {command: 'juno', args: []};
-
-const buildArgs = (args: string[]): string[] => [...JUNO_CDM_ARGS, ...args, ...JUNO_TEST_ARGS];
-
-export interface CliPageParams {
+export interface CliPageParams extends CliContextPageParams {
   satelliteId: PrincipalText;
 }
 
-export class CliPage {
+export class CliPage extends CliContextPage {
   #satelliteId: PrincipalText;
 
-  private constructor({satelliteId}: CliPageParams) {
+  private constructor({satelliteId, command}: CliPageParams) {
+    super({command});
+
     this.#satelliteId = satelliteId;
   }
 
@@ -64,36 +57,36 @@ export class CliPage {
 
   protected async loginWithEmulator(): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['login', '--emulator'])
+      command: this.command,
+      args: this.buildArgs(['login', '--emulator'])
     });
   }
 
   async applyConfig(): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['config', 'apply', '--force'])
+      command: this.command,
+      args: this.buildArgs(['config', 'apply', '--force'])
     });
   }
 
   private async logout(): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['logout'])
+      command: this.command,
+      args: this.buildArgs(['logout'])
     });
   }
 
   async clearHosting(): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['hosting', 'clear'])
+      command: this.command,
+      args: this.buildArgs(['hosting', 'clear'])
     });
   }
 
   async deployHosting({clear}: {clear: boolean}): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['hosting', 'deploy', ...(clear ? ['--clear'] : [])])
+      command: this.command,
+      args: this.buildArgs(['hosting', 'deploy', ...(clear ? ['--clear'] : [])])
     });
   }
 
@@ -103,8 +96,8 @@ export class CliPage {
     target: 'satellite' | 'orbiter' | 'mission-control';
   }): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['snapshot', 'create', '--target', target])
+      command: this.command,
+      args: this.buildArgs(['snapshot', 'create', '--target', target])
     });
   }
 
@@ -114,8 +107,8 @@ export class CliPage {
     target: 'satellite' | 'orbiter' | 'mission-control';
   }): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['snapshot', 'restore', '--target', target])
+      command: this.command,
+      args: this.buildArgs(['snapshot', 'restore', '--target', target])
     });
   }
 
@@ -125,8 +118,8 @@ export class CliPage {
     target: 'satellite' | 'orbiter' | 'mission-control';
   }): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['snapshot', 'delete', '--target', target])
+      command: this.command,
+      args: this.buildArgs(['snapshot', 'delete', '--target', target])
     });
   }
 
@@ -136,8 +129,8 @@ export class CliPage {
     target: 'satellite' | 'orbiter' | 'mission-control';
   }): Promise<{snapshotFolder: string}> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['snapshot', 'download', '--target', target])
+      command: this.command,
+      args: this.buildArgs(['snapshot', 'download', '--target', target])
     });
 
     return await this.getSnapshotFsFolder();
@@ -171,8 +164,8 @@ export class CliPage {
     folder: string;
   }): Promise<void> {
     await execute({
-      command: JUNO_CMD,
-      args: buildArgs(['snapshot', 'upload', '--target', target, '--dir', folder])
+      command: this.command,
+      args: this.buildArgs(['snapshot', 'upload', '--target', target, '--dir', folder])
     });
   }
 
@@ -184,8 +177,8 @@ export class CliPage {
     let output = '';
 
     await spawn({
-      command: JUNO_CMD,
-      args: buildArgs(['snapshot', 'list', '--target', target]),
+      command: this.command,
+      args: this.buildArgs(['snapshot', 'list', '--target', target]),
       stdout: (o) => (output += o),
       silentErrors: true
     });
@@ -198,8 +191,8 @@ export class CliPage {
     let output = '';
 
     await spawn({
-      command: JUNO_CMD,
-      args: buildArgs(['whoami']),
+      command: this.command,
+      args: this.buildArgs(['whoami']),
       stdout: (o) => (output += o),
       silentErrors: true
     });
