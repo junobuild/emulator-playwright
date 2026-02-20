@@ -21,4 +21,8 @@ export class SatellitePage extends BrowserPage {
   async assertScreenshot(): Promise<void> {
     await expect(this.page).toHaveScreenshot({fullPage: true});
   }
+
+  async assertContainText(text: string): Promise<void> {
+    await expect(this.page.locator('body')).toContainText(text);
+  }
 }
