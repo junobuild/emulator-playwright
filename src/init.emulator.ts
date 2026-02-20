@@ -13,7 +13,7 @@ export const initEmulatorSuite = ({
   cli
 }: {
   satelliteKind: 'website' | 'application';
-  cli?: CliContextPageParams;
+  cli?: CliContextPageParams & {cleanUp?: boolean};
 }): (() => EmulatorSuitePages) => {
   let consolePage: ConsolePage;
   let cliPage: CliPage;
@@ -36,11 +36,14 @@ export const initEmulatorSuite = ({
 
     const satelliteId = await consolePage.copySatelliteID();
 
-    cliPage = await CliPage.initWithEmulatorLogin({satelliteId, ...cli});
+    cliPage = await CliPage.initWithEmulatorLogin({satelliteId, command: cli?.command});
   });
 
   test.afterAll(async () => {
-    const results = await Promise.allSettled([consolePage.close(), cliPage.close()]);
+    const results = await Promise.allSettled([
+      consolePage.close(),
+      cliPage.close({cleanUp: cli?.cleanUp ?? true})
+    ]);
 
     if (results.find(({status}) => status === 'rejected')) {
       console.error(results);
